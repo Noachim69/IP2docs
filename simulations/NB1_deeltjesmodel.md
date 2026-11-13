@@ -32,8 +32,7 @@ Wellicht heb je bovenstaande al eens gezien met het programma Coach. Anders dan 
 We nemen als voorbeeld twee fietsers, waarbij de fietser 1 een eenparige beweging uitvoert en fietser 2 een eenparig versnelde beweging:
 
 ```python
-import numpy as np #hello bjorn nieuwe branch 
-#wat ben ik aan het doen 
+import numpy as np
 import matplotlib.pyplot as plt
 
 # Beginwaarden
@@ -78,12 +77,50 @@ Wat op zou kunnen vallen is dat de snelheid in een cel constant gehouden wordt (
 Maak het tijdsinterval $dt$ groter en vergelijk de afgelegde weg in de tien seconde. Wat gebeurt er met de afgelegde weg als we $dt$ groter maken? Is dat logisch vanuit gezien de natuurkunde? En gezien de methode van discretisatie? Leg uit.
 ```
 
+```python
+# Beginwaarden
+dt = 0.5                  #s
+t_e = 10                   #s
+N = int(t_e/dt)+1
+t = np.arange(0,t_e+dt,dt) #s
+
+# fietser 1
+x_1 = np.zeros(N)          #m     maakt array van lengte N met alleen maar waarde 0.
+v_1 = 5                    #m/s
+
+# fietser 2
+x_2 = np.zeros(N)          #m     
+v_2 = np.zeros(N)          #m/s     
+a_2 = .5                   #m/s^2     
+
+# Uitvoeren van de simulatie
+for i in range(0,N-1):
+    x_1[i+1] = x_1[i] + v_1*dt
+    
+    x_2[i+1] = x_2[i] + v_2[i]*dt
+    v_2[i+1] = v_2[i] + a_2*dt
+
+# Plotten van de gegevens.    
+plt.figure()
+
+plt.xlabel('$t$(s)')
+plt.ylabel('$x$(m)')
+
+plt.plot(t,x_1,'r.', markersize=1, label='fietser 1')
+plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
+
+plt.show()
+
+
+#afgelegde weg blijft het zelfde, je hebt namelijk dezelfde x na tien seconde als daarvoor alleen minder meetpunten
+```
+
+```python
+#%reset -f  #clears memory as we don't need it further down 
+```
 
 <!-- Jouw antwoord hier  -->
 
-```python
-%reset -f  #clears memory as we don't need it further down 
-```
 
 ## Naar een deeltjesmodel
 In Q2 werken we aan een deeltjes model. Dat model bestaat uiteindelijk uit een stuk of 100 deeltjes die in een afgesloten volume bewegen. Om voor elk deeltje apart de eigenschappen te bepalen, wordt enorm veel code. Omdat de deeltjes dezelfde eigenschappen hebben (massa, radius, snelheid, positie) kunnen we gebruik maken van classes.
@@ -230,7 +267,7 @@ En als je wilt gaan voor een uitdaging:
 ```
 
 ```python
-### YOUR CODE HERE ###
+### YOUR CODE HERE ### 
 ```
 
 Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan worden en dat kost nu eenmaal tijd. Nu is het wel zo dat sommige berekeningen meer tijd kosten dan anderen. Om te kijken of een stukje code geoptimaliseerd kan worden, moeten we een timer maken. Dat kan met onderstaande code:
