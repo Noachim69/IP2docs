@@ -32,8 +32,7 @@ Wellicht heb je bovenstaande al eens gezien met het programma Coach. Anders dan 
 We nemen als voorbeeld twee fietsers, waarbij de fietser 1 een eenparige beweging uitvoert en fietser 2 een eenparig versnelde beweging:
 
 ```python
-import numpy as np #Dit is van Noah 
-#ik ga meer proberen
+import numpy as np 
 import matplotlib.pyplot as plt
 
 # Beginwaarden
@@ -69,7 +68,10 @@ plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
 
 plt.show()
 
-
+X_afg1 = x_1[-1] - x_1[0]
+print('Afstand fietser 1 dt = 0.25:', X_afg1)
+X_afg2 = x_2[-1] - x_2[0]
+print('Afstand fietser 1 dt = 0.25:', X_afg2)
 ```
 
 Wat op zou kunnen vallen is dat de snelheid in een cel constant gehouden wordt ($x_i = v_i\cdot\Delta t$), terwijl de snelheid tijdens het tijdsinterval $\Delta t$ toeneemt. De oplossing is dus een benadering van de exacte oplossing, maar door deze methode (Euler explicit forward), moeten we wel voorzichtig zijn met de grootte van het tijdsinterval.
@@ -82,7 +84,45 @@ Maak het tijdsinterval $dt$ groter en vergelijk de afgelegde weg in de tien seco
 <!-- Jouw antwoord hier  -->
 
 ```python
-%reset -f  #clears memory as we don't need it further down 
+# %reset -f  #clears memory as we don't need it further down 
+
+dt = 1                #s
+t_e = 10                   #s
+N = int(t_e/dt)+1
+t = np.arange(0,t_e+dt,dt) #s
+
+# fietser 1
+x_1 = np.zeros(N)          #m     maakt array van lengte N met alleen maar waarde 0.
+v_1 = 5                    #m/s
+
+# fietser 2
+x_2 = np.zeros(N)          #m     
+v_2 = np.zeros(N)          #m/s     
+a_2 = .5                   #m/s^2     
+
+# Uitvoeren van de simulatie
+for i in range(0,N-1):
+    x_1[i+1] = x_1[i] + v_1*dt
+    
+    x_2[i+1] = x_2[i] + v_2[i]*dt
+    v_2[i+1] = v_2[i] + a_2*dt
+
+# Plotten van de gegevens.    
+plt.figure()
+
+plt.xlabel('$t$(s)')
+plt.ylabel('$x$(m)')
+
+plt.plot(t,x_1,'r.', markersize=1, label='fietser 1')
+plt.plot(t,x_2,'b.', markersize=1, label='fietser 2')
+
+plt.show()
+X_afg1 = x_1[-1] - x_1[0]
+print('Afstand fietser 1 dt = 1:', X_afg1)
+X_afg2 = x_2[-1] - x_2[0]
+print('Afstand fietser 1 dt = 1:', X_afg2)
+
+print('Afstand fietser 1 is kleiner, het is logisch dat de berekende afstand minder nauwkeurig is met een kleinere dt, idealiter integreren wij gewoon.')
 ```
 
 ## Naar een deeltjesmodel
