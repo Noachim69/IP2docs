@@ -32,7 +32,8 @@ Wellicht heb je bovenstaande al eens gezien met het programma Coach. Anders dan 
 We nemen als voorbeeld twee fietsers, waarbij de fietser 1 een eenparige beweging uitvoert en fietser 2 een eenparig versnelde beweging:
 
 ```python
-import numpy as np #hello bjorn
+import numpy as np #hello bjorn nieuwe branch 
+#wat ben ik aan het doen 
 import matplotlib.pyplot as plt
 
 # Beginwaarden
