@@ -692,11 +692,25 @@ class ParticleClass:
 
 
 ```python
+a=-9.81
+class ParticleClass:
+    def __init__(self, m, v, r, R):
+        self.m = m                         # mass of the particle
+        self.v = np.array(v, dtype=float)  # velocity vector
+        self.r = np.array(r, dtype=float)  # position vector
+        self.R = R                         # radius of the particle
+
+    def update_position(self):
+        self.r += self.v * dt
+    
+    def update_velocity(self, a):
+        self.v[1] += a*dt
 
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
-particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
+a = -9.81
+particle = ParticleClass(m=1.0, v=[0, 3.0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
 # Create the figure and axis
 fig, ax = plt.subplots()
@@ -721,7 +735,15 @@ def update(frame):
     particle.update_position()
     
     dot.set_data([particle.r[0]], [particle.r[1]])
-    ### YOUR CODE HERE ###
+    if particle.r[0]>= 9.5: # ipv 10 kan je het 9.5 maken dan  is de halve bal niet in de muur 
+        particle.v[0] = -1*particle.v[0]
+    if particle.r[0]<= -9.5:
+        particle.v[0] = -1*particle.v[0]
+
+    if particle.r[1]>= 9.5:
+        particle.v[1] = -1*particle.v[1]
+    if particle.r[1]<= -9.5:
+        particle.v[1] = -1*particle.v[1]    
     return dot,
 
 # Create animation
@@ -729,8 +751,8 @@ ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, i
 
 # For Jupyter notebook:
 from IPython.display import HTML
+plt.close()
 HTML(ani.to_jshtml())
-
 ```
 
 ```{exercise}
@@ -741,7 +763,7 @@ Herinner wat we in Q1 hebben gedaan bij de basics van een numerieke simulatie...
 ```
 
 ```{solution} ex-deeltjesmodel-6
-Jouw antwoord hier...
+Volgens behoud van energie zou energie behouden moeten blijven maar in deze simulatie zonder weerstand gaat er kinetische energie verloren terwijl dit volgens de natuurwetten niet zou mogen. 
 ```
 
 Een optie om de simulatie te verbeteren is de tijdstap $\Delta t$ kleiner te maken, maar dan hebben we ook meer geduld meer nodig - het aantal berekeningen schaalt met $\frac{1}{\Delta t}$. Een tweede optie is een meer directe oplossing: We weten dat $a = \mathrm{const.}$ en daarom weten we ook de bewegingsvergelijking van het deeltje!
@@ -812,6 +834,7 @@ ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, i
 
 # For Jupyter notebook:
 from IPython.display import HTML
+plt.close()
 HTML(ani.to_jshtml())
 ```
 
@@ -824,14 +847,34 @@ Maak de code hieronder voor twee deeltjes die bewegen in een afgesloten doos. Be
 ```
 
 ```python
+class ParticleClass:
+    def __init__(self, m, v, r, R):
+        self.m = m                  
+        self.v = np.array(v, dtype=float)  
+        self.r = np.array(r, dtype=float)  
+        self.R = R  
+
+    def update_position(self,a):
+        self.r += self.v * dt + 0.5 * a * dt**2  
+    
+    def update_velocity(self, a):
+        """Update the particle's velocity."""
+        self.v += a*dt
+
+
+
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
+a = np.array([0,-9.81],dtype=float)
 particleA = ParticleClass(m=1.0, v=[0, 0], r=[0.0, 0.0],R=1.0)  
+particleB = ParticleClass(m=1.0, v=[1, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
 
 track_x = []
 track_y = []
+track_x1 = []
+track_y1 = []
 
 # Create the figure and axis
 fig, ax = plt.subplots()
@@ -842,27 +885,36 @@ ax.set_title("Particle Animation")
 ax.set_xlabel("x")
 ax.set_ylabel("y")
 track_line, = ax.plot([], [], 'r--', linewidth=1)  
+track_line1, = ax.plot([], [], 'b--', linewidth=1)  
 
 # Create the particle as a red dot
 dotA, = ax.plot([], [], 'ro', markersize=10)
 dotB, = ax.plot([], [], 'bo', markersize=10)
 
 # Initialization function for animation
-def init():
-    dot.set_data([], [])
-    return dot,
 
+def init():
+    dotA.set_data([], [])
+    dotB.set_data([], [])
+    track_line.set_data([], [])
+    track_line1.set_data([], [])
+    return dotA, dotB, track_line, track_line1
+    
 # Update function for each frame
 def update(frame):
-    particleA.update_position()
+    particleA.update_position(a)
     particleA.update_velocity(a)
-
+    particleB.update_position(a)
+    particleB.update_velocity(a)
 ### YOUR CODE HERE ###
-
+ 
+##################################
     track_x.append(particleA.r[0])
     track_y.append(particleA.r[1])
     track_line.set_data(track_x, track_y)
-    
+    track_x1.append(particleB.r[0])
+    track_y1.append(particleB.r[1])
+    track_line1.set_data(track_x1, track_y1)
     dotA.set_data([particleA.r[0]], [particleA.r[1]])
     dotB.set_data([particleB.r[0]], [particleB.r[1]])
 
@@ -877,13 +929,14 @@ def update(frame):
     if particleB.r[1]**2>100: 
         particleB.v[1] = -particleB.v[1]
 
-    return dot, track_line
+    return dotA, dotB, track_line, track_line1
 
 # Create animation
 ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, interval=50)
 
 # For Jupyter notebook:
 from IPython.display import HTML
+plt.close()
 HTML(ani.to_jshtml())
 ```
 
@@ -903,7 +956,7 @@ Nu je een beetje weet hoe een numeriek model werkt, hoe je boundaries kunt opgev
 ```
 
 ```{solution} ex-deeltjes_10
-Jouw antwoord.
+1. 
 ```
 
 ```python tags=["NB1_botsingsvoorwaarde"]
@@ -995,6 +1048,7 @@ ani = FuncAnimation(fig, update, frames=range(num_steps), init_func=init, blit=T
 
 # Voor Jupyter notebook:
 from IPython.display import HTML
+plt.close()
 HTML(ani.to_jshtml())
 ```
 
