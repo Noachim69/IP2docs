@@ -276,10 +276,6 @@ En als je wilt gaan voor een uitdaging:
 ```
 
 ```python
-print(np.random.uniform(-5,5))
-```
-
-```python
 class deeltje:
     def __init__(self, m, v, r, R, kleur):
         self.m = m                         # massa van het deeltje
@@ -289,11 +285,10 @@ class deeltje:
         self.kleur = kleur
 
     def beweeg(self,dt):
-        """Werk de positie van het deeltje bij op basis van zijn snelheid en tijdstap dt."""
         self.r += self.v * dt
 
-kleurtjes = ['red','blue','green','orange','purple',
-           'brown','pink','cyan','yellow','black']
+kleurtjes = ['r','b','g','orange','purple',
+           'brown','pink','cyan','yellow','k']
 
 deeltje_array = []
 for start_x in range(10):
@@ -322,14 +317,25 @@ start = time.time()
 
 array = np.array([])
 N = int(1e5)
+array = np.random.rand(1,N)
+eind = time.time()
+lengte_2 = eind - start
 
+
+start = time.time()
 for i in range(N):
     array = np.append(array,np.random.rand(1))
-
 eind = time.time()
 lengte = eind - start
 
-print("Dit kostte ", lengte, "seconde!")
+
+print("Dit kostte ", lengte_2, "seconde!")
+
+lengte =lengte
+verkort_5 = lengte - lengte_2
+
+
+
 ```
 
 Idealiter draaien we de bovenstaande code een aantal keer zodat we een goede schatting hebben van de rekentijd.
@@ -348,12 +354,9 @@ Met de MyST extentie in jupyterlab kun je gebruik maken van [eval](https://mystm
 ```
 
 ```{solution} ex-intro-3
-De runtime is {eval}`<naam variabele>` korter.
+De runtime is {eval}`verkort_5` korter.
 ```
 
-```python
-
-```
 
 ## Aan de slag met deeltjes
 Zoom je heel ver in, dan zie je deeltjes rond vliegen.
@@ -494,6 +497,7 @@ ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, i
 
 # For Jupyter notebook:
 from IPython.display import HTML
+plt.close()
 HTML(ani.to_jshtml())
 
 ```
@@ -509,11 +513,44 @@ Controleer je eigen antwoord door de functie hierboven even te vervangen door de
 
 ```python tags=["NB1_doorlopendedoos"]
 # doorlopende doos
+
+# Simulation parameters
+dt = 0.1         # time step
+num_steps = 500  # number of time steps
+particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
+
+# Create the figure and axis
+fig, ax = plt.subplots()
+ax.set_xlim(-10, 10)
+ax.set_ylim(-10, 10)
+ax.set_aspect('equal')
+ax.set_title("Particle Animation")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+
+# Create the particle as a red dot
+dot, = ax.plot([], [], 'ro', markersize=10)
+
+# Initialization function for animation
+def init():
+    dot.set_data([], [])
+    return dot,
+
+# Update function for each frame
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-### YOUR CODE HERE ###
-    return dot,         
+    if particle.r[0]>= 10:
+        particle.r[0] = -10
+    return dot,     
+
+# Create animation
+ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, interval=50)
+
+# For Jupyter notebook:
+from IPython.display import HTML
+plt.close()
+HTML(ani.to_jshtml())
 ```
 
 ```{exercise} Harde wanden
@@ -525,11 +562,47 @@ Test wederom je code door de vernieuwde functie hierboven te plakken.
 
 ```python tags=["NB1_hardewand"]
 # harde wanden
+
+# Simulation parameters
+dt = 0.1         # time step
+num_steps = 500  # number of time steps
+particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
+
+# Create the figure and axis
+fig, ax = plt.subplots()
+ax.set_xlim(-10, 10)
+ax.set_ylim(-10, 10)
+ax.set_aspect('equal')
+ax.set_title("Particle Animation")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+
+# Create the particle as a red dot
+dot, = ax.plot([], [], 'ro', markersize=10)
+
+# Initialization function for animation
+def init():
+    dot.set_data([], [])
+    return dot,
+
+# Update function for each frame
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-### YOUR CODE HERE ###
-    return dot,
+    if particle.r[0]>= 10:
+        particle.v[0] = -1*particle.v[0]
+    if particle.r[0]<= -10:
+        particle.v[0] = -1*particle.v[0]
+    return dot,     
+
+# Create animation
+ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, interval=50)
+
+# For Jupyter notebook:
+from IPython.display import HTML
+plt.close()
+HTML(ani.to_jshtml())
+
 ```
 
 ```{exercise}
@@ -544,6 +617,8 @@ dt = 0.1         # time step
 num_steps = 500  # number of time steps
 
 ### YOUR CODE HERE ###
+particle = ParticleClass(m=1.0, v=[5.0, 3.0], r=[0.0, 0.0],R=1.0)  
+
 
 # Create the figure and axis
 fig, ax = plt.subplots()
@@ -566,7 +641,15 @@ def init():
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-    ### YOUR CODE HERE ###
+    if particle.r[0]>= 9.5: # ipv 10 kan je het 9 maken dan  is de halve bal niet in de muur 
+        particle.v[0] = -1*particle.v[0]
+    if particle.r[0]<= -9.5:
+        particle.v[0] = -1*particle.v[0]
+
+    if particle.r[1]>= 9.5:
+        particle.v[1] = -1*particle.v[1]
+    if particle.r[1]<= -9.5:
+        particle.v[1] = -1*particle.v[1]    
     return dot,
 
 # Create animation
@@ -574,6 +657,7 @@ ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, i
 
 # For Jupyter notebook:
 from IPython.display import HTML
+plt.close()
 HTML(ani.to_jshtml())
 ```
 
