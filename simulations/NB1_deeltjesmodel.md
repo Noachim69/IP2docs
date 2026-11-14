@@ -15,6 +15,12 @@ Als startopdracht modelleren we twee fietsers. Doorloop de bovenstaande drie sta
 
 
 
+1. fietser 1 gaat met een constante snelheid en legt dus continu een afstand af, terwijl
+   fietser 2 gaat steeds sneller en heeft dus een versnelling. de afstand per seconde zal dan ook toenemen.
+2. F = m*a, x = v*t
+3. variabele is tijd en voor fietser 2 ook snelheid
+
+
 ## Numerieke modellen
 Om een simulatie te maken, splitsen we het volledige proces op in kleine stappen met een vaste (tijd)interval, zoals in onderstaande figuur. Elk stapje krijgt een nummer, van $0$ tot $N$. We gebruiken de letter $i$ om naar een specifieke stap te verwijzen.
 
@@ -218,6 +224,9 @@ Gegeven bovenstaande particles die je hebt aangemaakt, hoe zien de posities er d
 Voorspel en controleer vervolgens met onderstaande code.
 ```
 
+
+We hebben 4 deeltjes gemaakt en als start r hebben ze i in range 4. Wij hebben geleerd dat dat 0,1,2,3 geeft dus de 3 deeltjes bevinden zich op positie r = 0,1,2,3 voor de rest zijn ze precies hetzelfde.
+
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -267,7 +276,40 @@ En als je wilt gaan voor een uitdaging:
 ```
 
 ```python
-### YOUR CODE HERE ### 
+print(np.random.uniform(-5,5))
+```
+
+```python
+class deeltje:
+    def __init__(self, m, v, r, R, kleur):
+        self.m = m                         # massa van het deeltje
+        self.v = np.array(v, dtype=float)  # snelheids vector
+        self.r = np.array(r, dtype=float)  # positie vector
+        self.R = np.array(R, dtype=float)
+        self.kleur = kleur
+
+    def beweeg(self,dt):
+        """Werk de positie van het deeltje bij op basis van zijn snelheid en tijdstap dt."""
+        self.r += self.v * dt
+
+kleurtjes = ['red','blue','green','orange','purple',
+           'brown','pink','cyan','yellow','black']
+
+deeltje_array = []
+for start_x in range(10):
+    deeltje_array.append(deeltje(m=1.0, v=[np.random.uniform(-5,5), np.random.uniform(-0.2,0.2)], r=[start_x, 0.0],R=1.0, kleur = kleurtjes[start_x]))
+for i in deeltje_array:
+    plt.plot(i.r[0],i.r[1],'o', color = i.kleur)
+#plt.show()
+for j in range(len(deeltje_array)):
+    deeltje_array[j].beweeg(2.0)
+
+for i in deeltje_array:
+    plt.plot(i.r[0],i.r[1],'o', color = i.kleur)
+
+
+
+
 ```
 
 Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan worden en dat kost nu eenmaal tijd. Nu is het wel zo dat sommige berekeningen meer tijd kosten dan anderen. Om te kijken of een stukje code geoptimaliseerd kan worden, moeten we een timer maken. Dat kan met onderstaande code:
