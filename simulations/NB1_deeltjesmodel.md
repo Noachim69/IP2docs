@@ -474,10 +474,15 @@ def init():
     return dot,
 
 # Update function for each frame
+# doorlopende doos
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-    return dot,
+    if particle.r[0] > 10:
+        particle.v[0] = -particle.v[0]
+    if particle.r[0] < -10:
+        particle.v[0] = -particle.v[0]
+    return dot,         
 
 # Create animation
 ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, interval=50)
@@ -502,8 +507,10 @@ Controleer je eigen antwoord door de functie hierboven even te vervangen door de
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-### YOUR CODE HERE ###
-    return dot,         
+    if particle.r[0] > 10:
+        particle.r[0] -= 20
+    
+    return dot,          
 ```
 
 ```{exercise} Harde wanden
@@ -514,12 +521,15 @@ Test wederom je code door de vernieuwde functie hierboven te plakken.
 ```
 
 ```python tags=["NB1_hardewand"]
-# harde wanden
+# doorlopende doos
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-### YOUR CODE HERE ###
-    return dot,
+    if particle.r[0] > 10:
+        particle.v[0] = -particle.v[0]
+    if particle.r[0] < -10:
+        particle.v[0] = -particle.v[0]
+    return dot,         
 ```
 
 ```{exercise}
@@ -532,7 +542,7 @@ Verander nu de code zodanig dat de beginsnelheid gegeven wordt door $\vec{v}=5\h
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
-
+particle = ParticleClass(m=1.0, v=[5.0, 3.0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
 
 # Create the figure and axis
@@ -556,8 +566,15 @@ def init():
 def update(frame):
     particle.update_position()
     dot.set_data([particle.r[0]], [particle.r[1]])
-    ### YOUR CODE HERE ###
-    return dot,
+    if particle.r[0] > 9:
+        particle.v[0] = -particle.v[0]
+    if particle.r[0] < -9:
+        particle.v[0] = -particle.v[0]
+    if particle.r[1] > 9:
+        particle.v[1] = -particle.v[1]
+    if particle.r[1] < -9:
+        particle.v[1] = -particle.v[1]
+    return dot,  
 
 # Create animation
 ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, interval=50)
@@ -598,12 +615,25 @@ class ParticleClass:
 
 
 ```python
+# Maken van de class met versnelling
+class ParticleClass:
+    def __init__(self, m, v, r, R):
+        self.m = m                         # mass of the particle
+        self.v = np.array(v, dtype=float)  # velocity vector
+        self.r = np.array(r, dtype=float)  # position vector
+        self.R = R                         # radius of the particle
 
+    def update_position(self):
+        self.r += self.v * dt
+    
+    def update_velocity(self, a):
+        self.v += a*dt
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
 particle = ParticleClass(m=1.0, v=[5.0, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
+
 # Create the figure and axis
 fig, ax = plt.subplots()
 ax.set_xlim(-10, 10)
@@ -623,12 +653,19 @@ def init():
 
 # Update function for each frame
 def update(frame):
-    particle.update_velocity(a)
+    particle.update_velocity(np.array([0,-9.81]))
     particle.update_position()
-    
     dot.set_data([particle.r[0]], [particle.r[1]])
-    ### YOUR CODE HERE ###
-    return dot,
+    if particle.r[0] > 9:
+        particle.v[0] = -particle.v[0]
+    if particle.r[0] < -9:
+        particle.v[0] = -particle.v[0]
+    if particle.r[1] > 9:
+        particle.v[1] = -particle.v[1]
+    if particle.r[1] < -9:
+        particle.r[1] = -9
+        particle.v[1] = -particle.v[1]
+    return dot,  
 
 # Create animation
 ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, interval=50)
@@ -636,7 +673,6 @@ ani = FuncAnimation(fig, update, frames=range(200), init_func=init, blit=True, i
 # For Jupyter notebook:
 from IPython.display import HTML
 HTML(ani.to_jshtml())
-
 ```
 
 ```{exercise}
@@ -647,7 +683,7 @@ Herinner wat we in Q1 hebben gedaan bij de basics van een numerieke simulatie...
 ```
 
 ```{solution} ex-deeltjesmodel-6
-Jouw antwoord hier...
+Jouw antwoord hier... Het deeltje blijft oneindig lang door bewegen, dit ligt aan mijn definitie van de botsing wat compleet elastisch is. Er raakt ook geen energie verloren aan bijvoorbeeld luchtwrijving, daarom is het best logisch.
 ```
 
 Een optie om de simulatie te verbeteren is de tijdstap $\Delta t$ kleiner te maken, maar dan hebben we ook meer geduld meer nodig - het aantal berekeningen schaalt met $\frac{1}{\Delta t}$. Een tweede optie is een meer directe oplossing: We weten dat $a = \mathrm{const.}$ en daarom weten we ook de bewegingsvergelijking van het deeltje!
@@ -731,9 +767,11 @@ Maak de code hieronder voor twee deeltjes die bewegen in een afgesloten doos. Be
 
 ```python
 # Simulation parameters
+a = np.array([0, -9.81])
 dt = 0.1         # time step
 num_steps = 500  # number of time steps
 particleA = ParticleClass(m=1.0, v=[0, 0], r=[0.0, 0.0],R=1.0)  
+particleB = ParticleClass(m=1.0, v=[2, 0], r=[0.0, 0.0],R=1.0)  
 ### YOUR CODE HERE ###
 
 track_x = []
@@ -762,6 +800,8 @@ def init():
 def update(frame):
     particleA.update_position()
     particleA.update_velocity(a)
+    particleB.update_position()
+    particleB.update_velocity(a)
 
 ### YOUR CODE HERE ###
 
@@ -828,6 +868,9 @@ class ParticleClass:
 
     def collide_detection(self, other):
         ### YOUR CODE HERE ###
+        dx = np.abs(self.r[0] - other.r[0])
+        dy = np.abs(self.r[1] - other.r[1])
+        rr = self.R + other.R
         return  dx**2+dy**2 < rr**2 
 ```
 
@@ -879,8 +922,11 @@ def update(frame):
 
     # botsing tussen de deeltjes onderling
     if particleA.collide_detection(particleB):
-        ### YOUR CODE HERE ###
-
+        mmp_frame = np.array(((particleA.m * particleA.v) + (particleB.m * particleB.v)) / (particleA.m + particleB.m))
+        mmp_frameA = np.array(particleA.v - mmp_frame)
+        mmp_frameB = np.array(particleB.v - mmp_frame)
+        particleA.v = -mmp_frameA + mmp_frame
+        particleB.v = -mmp_frameB + mmp_frame
 
     # botsing met de wand
     if particleA.r[0]**2>100: 
