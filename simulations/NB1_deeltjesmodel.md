@@ -1064,17 +1064,40 @@ HTML(ani.to_jshtml())
 ```
 
 ```python
-#elegantere versie
-###############################
 
+class ParticleClass:
+    def __init__(self, m, v, r, R):
+        self.m = m                  
+        self.v = np.array(v, dtype=float)  
+        self.r = np.array(r, dtype=float)  
+        self.R = R 
+
+    def update_position(self):
+        self.r += self.v * dt  
+
+    def collide_detection(self, other):
+        dx = self.r[0]-other.r[0]
+        dy = self.r[1]-other.r[1]
+        rr = self.R + other.R
+        return  dx**2+dy**2 < rr**2 
+    
 # Simulation parameters
 dt = 0.1         # time step
 num_steps = 200  # number of time steps
 
-particles =[particleA = ParticleClass(m=1.0, v=[2.5, 0], r=[-2.0, 0.0],R=0.45),  particleB = ParticleClass(m=1.0, v=[-1, 0], r=[0.0, 0.0],R=0.45)] 
+#particleA = ParticleClass(m=1.0, v=[2.5, 0], r=[-2.0, 0.0],R=0.45)  
+#particleB = ParticleClass(m=1.0, v=[-1, 0], r=[0.0, 0.0],R=0.45)  
+particles = [ParticleClass(m=1.0, v=[2.5, 0], r=[-2.0, 0.0],R=0.45), ParticleClass(m=1.0, v=[-1, 0], r=[0.0, 0.0],R=0.45)]
 
-track_x = [[] for _ in particles]
-track_y = [[] for _ in particles]
+track_x = []
+track_y = []
+for i in particles:
+    track_x.append([])
+    track_y.append([])
+#track_x = []
+#track_y = []
+#track_x1 = []
+#track_y1 = []
 
 # Creer de plot
 
@@ -1086,68 +1109,90 @@ ax.set_aspect('equal')
 ax.set_title("Particle Animation")
 ax.set_xlabel("x")
 ax.set_ylabel("y")
-colors = ['r', 'b', 'g', 'm', 'c']
-dot, = ax.plot([], [], 'ro', markersize=10); 
-dots = [
-    ax.plot([], [], color + 'o', markersize=10)[0]
-    for color in colors[:len(particles)]
-]
 
-track_lines = [
-    ax.plot([], [], '--', color=colors[i])[0]
-    for i in range(len(particles))
-]
+
+
+kleurtjes = ['r','b','g','orange','purple',
+           'brown','pink','cyan','yellow','k']
+
+
 # Toon het deeltje als een rode stip
-dot, = ax.plot([], [], 'ro', markersize=10); # semicolon to suppress output
+dots = []
+track_lines = []
+
+for i, particle_object in enumerate(particles):
+    line, =  ax.plot([], [], '--', color = kleurtjes[i], linewidth=1)
+    dot, = ax.plot([], [], 'o', color = kleurtjes[i], markersize=10)
+    dots.append(dot)
+    track_lines.append(line)
+    
+#dot, = ax.plot([], [], 'ro', markersize=10); # semicolon to suppress output
+    
+
+#dotA, = ax.plot([], [], 'ro', markersize=10)
+#dotB, = ax.plot([], [], 'bo', markersize=10)
+
+
+#track_line, = ax.plot([], [], 'r--', linewidth=1)  
+#track_line1, = ax.plot([], [], 'b--', linewidth=1)  
 
 
 # Initaliseren voor de animatie
 def init():
-    dot.set_data([], [])
-    return dot,
+    for dot in dots:
+        dot.set_data([], [])
+    return dots + track_lines
 
 # Updaten van de functie per frame
 def update(frame):
-for p in particles:
-    p.undate_position()
+    for i in particles:
+        i.update_position()
+    #particleA.update_position()
+    #particleB.update_position()
 
-    track_x.append(particleA.r[0])
-    track_y.append(particleA.r[1])
-    track_line.set_data(track_x, track_y)
-    track_x1.append(particleB.r[0])
-    track_y1.append(particleB.r[1])
-    track_line1.set_data(track_x1, track_y1)
+    for i, particle_object in enumerate(particles):
+        track_x[i].append(particle_object.r[0])
+        track_y[i].append(particle_object.r[1])
+        track_lines[i].set_data(track_x[i],track_y[i])
+
+        dots[i].set_data([particle_object.r[0]],[particle_object.r[1]])
+    #track_x.append(particleA.r[0])
+    #track_y.append(particleA.r[1])
+   # track_line.set_data(track_x, track_y)
+    #track_x1.append(particleB.r[0])
+    #track_y1.append(particleB.r[1])
+    #track_line1.set_data(track_x1, track_y1)
     
-    dotA.set_data([particleA.r[0]], [particleA.r[1]])
-    dotB.set_data([particleB.r[0]], [particleB.r[1]])
+    #dotA.set_data([particleA.r[0]], [particleA.r[1]])
+    #dotB.set_data([particleB.r[0]], [particleB.r[1]])
 
     # botsing tussen de deeltjes onderling
-for i in range(len(particles)):
-    for j in range(i+1, len(particles)):
+    for i in range(len(particles)):
+        for j in range(i+1, len(particles)):
+            if particles[i].collide_detection(particles[j]):
+                particles[i].v, particles[j].v =  particles[j].v.copy(), particles[i].v.copy()
+    #if particleA.collide_detection(particleB):
+        #particleA.v, particleB.v = particleB.v.copy(), particleA.v.copy()
 
-        if particles[i].collide_detection(particles[j]):
-
-            particles[i].v, particles[j].v = (
-                particles[j].v.copy(),
-                particles[i].v.copy()
-            )
 
     # botsing met de wand
-for p in particles:
+    for i in particles:
+        if i.r[0]**2>100:
+            i.v[0] = -i.v[0]
+        if i.r[1]**2>100:
+            i.v[1] = -i.v[1]        
+    #if particleA.r[0]**2>100: 
+       # particleA.v[0] = -particleA.v[0]
+    #if particleA.r[1]**2>100: 
+        #particleA.v[1] = -particleA.v[1]
 
-    ** abs(p.r[0]) > 10 - p.R:
-        **v[0] *= -1
+    #dot.set_data([particleB.r[0]], [particleB.r[1]])
+    #if particleB.r[0]**2>100: 
+      #  particleB.v[0] = -particleB.v[0]
+   # if particleB.r[1]**2>100: 
+       # particleB.v[1] = -particleB.v[1]
 
-    if abs(p.r[1]) > ***- p.R:
-        p.v[1] *= -1
-
-    dot.set_data([particleB.r[0]], [particleB.r[1]])
-    if particleB.r[0]**2>100: 
-        particleB.v[0] = -particleB.v[0]
-    if particleB.r[1]**2>100: 
-        particleB.v[1] = -particleB.v[1]
-
-    return dot, track_line, track_line1
+    return dots + track_lines
 
 # Creeer animatie
 ani = FuncAnimation(fig, update, frames=range(num_steps), init_func=init, blit=True, interval=50)
@@ -1212,7 +1257,7 @@ Wat is de beperkende factor in ons script om het aantal botsingen als functie va
 ```
 
 ```{solution} ex-deeltjes-12
-we hebben aan beide kanten een muur dus hij blijft stuiteren maar er moet dus 1 moer weg om goed te kunnen simuleren hoevaak hij stuitert
+we hebben aan beide kanten een muur dus hij blijft stuiteren maar er moet dus 1 moer weg om goed te kunnen simuleren hoevaak hij stuitert. uiteindelijk struitert hij te vaak om te kunnen meten of de stappen moeten zo klein zijn dat hij alles registreert alleen dan telt hij er weer teveel dus dit is geen geschikte manier om alles op te tellen
 ```
 
 
