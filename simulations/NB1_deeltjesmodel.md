@@ -222,6 +222,7 @@ Voorspel en controleer vervolgens met onderstaande code.
 ```
 
 ```python
+#De deeltjes hebben allemaal dezelfde snelheid maar beginnen steeds 1 meter verder, dus ze zullen in een rij samen bewegen.
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -271,6 +272,21 @@ En als je wilt gaan voor een uitdaging:
 
 ```python
 ### YOUR CODE HERE ###
+particle_arrayOP4 = []
+
+for start_x in range(10):
+    particle_arrayOP4.append(ParticleClass(m=1.0, v=[np.random.randint(-5,6), np.random.randint(-5,6)], r=[start_x, 0.0],R=1.0))
+
+for i, deeltje in enumerate(particle_arrayOP4):
+    plt.plot(deeltje.r[0],deeltje.r[1], '.b')
+    plt.text(deeltje.r[0], deeltje.r[1], i+1)
+    plt.show
+dt = 0.5
+for i, deeltje in enumerate(particle_arrayOP4):
+    deeltje.update_position(dt)
+    plt.plot(deeltje.r[0],deeltje.r[1], '.r')
+    plt.text(deeltje.r[0], deeltje.r[1], i+1)
+    plt.show
 ```
 
 Onze simulaties worden snel “zwaar”. Er moeten veel berekeningen gedaan worden en dat kost nu eenmaal tijd. Nu is het wel zo dat sommige berekeningen meer tijd kosten dan anderen. Om te kijken of een stukje code geoptimaliseerd kan worden, moeten we een timer maken. Dat kan met onderstaande code:
@@ -288,9 +304,10 @@ for i in range(N):
     array = np.append(array,np.random.rand(1))
 
 eind = time.time()
-lengte = eind - start
+lengte1 = eind - start
 
-print("Dit kostte ", lengte, "seconde!")
+print("Dit kostte ", lengte1, "seconde!")
+
 ```
 
 Idealiter draaien we de bovenstaande code een aantal keer zodat we een goede schatting hebben van de rekentijd.
@@ -313,7 +330,19 @@ De runtime is {eval}`<naam variabele>` korter.
 ```
 
 ```python
+#Opdracht 5
+start = time.time()
 
+array = np.array([])
+N = int(1e5)
+
+array = array,np.random.rand(N)
+
+eind = time.time()
+lengte2 = eind - start
+
+print("Dit kostte ", lengte2, "seconde!")
+print('De runtime is', lengte1/lengte2, 'korter')
 ```
 
 ## Aan de slag met deeltjes
