@@ -1,7 +1,7 @@
 # NB 2: Brownian motion
 
 ```python
-import numpy as np
+import numpy as np #Noah
 import matplotlib.pyplot as plt
 ```
 
