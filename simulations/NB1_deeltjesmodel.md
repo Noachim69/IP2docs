@@ -1207,7 +1207,7 @@ def update(frame):
     return dot, counter_text
 
 # Create animation
-ani = FuncAnimation(fig, update, frames=range(250), init_func=init, blit=True, interval=50)
+ani = FuncAnimation(fig, update, frames=range(300), init_func=init, blit=True, interval=50)
 
 # For Jupyter notebook:
 from IPython.display import HTML
