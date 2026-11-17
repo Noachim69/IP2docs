@@ -342,9 +342,11 @@ tijd = np.linspace(DT, 100*DT, 100)
 
 plt.plot(tijd, E_tot, 'r.', markersize = 2)
 plt.title('Kinetische energie op verschillende tijdstippen')
+# plt.ylim(19.9999999999999,20.0000000000001)
 plt.xlabel('$t$ (s)')
 plt.ylabel('$E$ (j)')
 plt.show()
+# print(E_tot)
 ```
 
 ```{exercise} 
@@ -353,15 +355,15 @@ Als je heel nauwkeurig naar de waarde voor de totale kinetische energie kijkt, d
 ```
 
 ```{solution} ex-recap-8
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+Als je hierboven naar mijn commented ylim kijkt, zien we pas als we zo ver inzoemen een variatie in waardes, ik heb ook de array geprint en het is te zien dat de waardes variëren alleen als we kijken naar de 15de decimaal.
 ```
 
 <!-- #raw -->
 Voor simulaties waarbij de kans op botsingen heel groot is (richting vloeistof), is er een handige methode om de snelheid van je simulatie op te voeren.
 In onderstaande code wordt daar een voorbeeld van gegeven.
+<!-- #endraw -->
 
-```{code} python
+```python tags=["NB2_ex7"]
 def handle_collisions(particles):
     ignore_list = []
     for i, p1 in enumerate(particles):
@@ -375,6 +377,7 @@ def handle_collisions(particles):
                 ignore_list.append(p2)
 ```
 
+<!-- #raw -->
 ```{exercise} Controleren van beperkingen 🌶 
 :label: ex-recap-10
 
@@ -386,6 +389,13 @@ Maak een script waarbij twee deeltjes met dezelfde (absolute) snelheid op een de
 - Voor wie een uitdaging wil: maak een grafiek met het aantal botsingen per tijdseenheid. Dit om bovenstaande benadering verder te verantwoorden.
 ```
 <!-- #endraw -->
+
+```python tags=["NB2_ex7"]
+#De code hierboven controlleert ook voor botsingen en zorgt dat die niet 2 keer worden 'gehandled'. Eerst wordt gechecked of een deeltje
+# in ignore_list zit als dat zo is wordt die overgeslagen, in de tweede loop wordt gecontrolleerd of we niet een deeltje met zichzelf laten botsen,
+# als laatst wordt de collide_detection functie gebruikt en wordt deeltje p2 toegevoegd aan ignore_list
+
+```
 
 ````{tip} Nog sneller
 Er is een manier om je script nog sneller te maken. 
@@ -416,7 +426,7 @@ In onderstaande testcode, gemaakt door Josh Sleijfer wordt een van die functies 
 Wat blijkt?
 Voor "kleine" vectoren is het sneller om geen gebruik te maken van Numpy maar voor grotere vectoren wel!
 
-```{code} python
+```python tags=["NB2_ex7"]
 import numpy as np
 import time
 
@@ -446,10 +456,7 @@ t0 = time.perf_counter()
 dot = np.sum(rnd_vec1[0] * rnd_vec1[0] + rnd_vec1[1] * rnd_vec1[1])
 t1 = time.perf_counter()
 print(f"Fully vectorized: Time taken for {repeats} dot products of length {L}: {t1 - t0:.4f} seconds")
-
 ```
-
-
 
 ## Brownian motion
 
