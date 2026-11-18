@@ -395,6 +395,12 @@ Maak een script waarbij twee deeltjes met dezelfde (absolute) snelheid op een de
 # in ignore_list zit als dat zo is wordt die overgeslagen, in de tweede loop wordt gecontrolleerd of we niet een deeltje met zichzelf laten botsen,
 # als laatst wordt de collide_detection functie gebruikt en wordt deeltje p2 toegevoegd aan ignore_list
 
+p1 = ParticleClass(1, [1, 0], [0, 0], 1)
+p2 = ParticleClass(1, [0, 0], [3, 0], 1)
+p3 = ParticleClass(1, [-1, 0], [6, 0], 1)
+Deeltjes = [p1, p2, p3]
+
+handle_collisions(Deeltjes)
 ```
 
 ````{tip} Nog sneller
@@ -537,6 +543,8 @@ for i in range(N-1):
     pos = Box_length_0*np.random.uniform(-1,1,2)
     particles.append(ParticleClass(m=1.0, v=[vx, vy], r = pos, R=.5,c='blue')) 
 
+#Zwaardere deeltje in het rood die in het midden van de box staat,
+#deze staat in eerste instantie stil en heeft dezelfde straal als alle andere deeltjes
 particles.append(ParticleClass(m=20.0, v=[0, 0], r = [0, 0], R=.5,c='red')) 
 
 ```
@@ -549,7 +557,7 @@ Voeg voor deze regel goede metadata toe.
 ```
 
 ```{solution} ex-brownian-1
-### YOUR CODE HERE ###
+Kijk bovenstaande code
 ```
 
 
@@ -588,7 +596,10 @@ Hoe wordt er voor gezorgd dat de snelheid van elk deeltje gelijk is?
 ```
 
 ```{solution} ex-brownian-2
-### YOUR CODE HERE ###
+    de code die gecomment is laat zien welke richting en snelheid elk deeltje heeft
+    vx = np.random.uniform(-v_0,v_0)
+    vy = np.random.choice([-1, 1])*np.sqrt(v_0**2-vx**2)
+    deze regels zorgen ervoor dat alle deeltjes gelijke snelheid hebben
 ```
 
 We gaan nu de functies van de simulatie weer aanroepen:
