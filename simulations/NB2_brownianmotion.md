@@ -353,7 +353,23 @@ plt.plot(t,energy_tot,'k.');
 ```
 
 ```python tags=["NB2_ex7"]
-print(np.linspace(0,99,100))
+# plotten van kinetische energie als functie van tijd
+
+particles = []
+energy_tot = []
+create_particles(particles)
+for i in range(100):
+    take_time_step(particles)
+    energie_stap = []
+    for j in range(len(particles)):
+        tijdelijkE = particles[j].kin_energy
+        energie_stap = np.append(energie_stap,tijdelijkE )
+    energie_stap = np.sum(energie_stap)
+    energy_tot = np.append(energy_tot,energie_stap)
+    
+t = np.linspace(0,99,100)
+# plot de figuur van de kinetische energie als functie van de tijd. 
+plt.plot(t,energy_tot-20,'k.')
 ```
 
 ```{exercise} 
@@ -362,8 +378,7 @@ Als je heel nauwkeurig naar de waarde voor de totale kinetische energie kijkt, d
 ```
 
 ```{solution} ex-recap-8
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+dit gebeurt soms op een schaal van +/-3.5e-15, dit kan je zien in de residue grafiek hierboven.
 ```
 
 
@@ -391,10 +406,67 @@ Leg uit wat deze code precies doet.
 
 Maak een script waarbij twee deeltjes met dezelfde (absolute) snelheid op een derde deeltje afbewegen en tegelijk zouden botsen.
 - Laat zien dat 'slechts' twee deeltjes een interactie met elkaar aan gaan.
-- Leg uit waarom dat een acceptabele benadering is wanneer je veel deeltjes botsingen per tijdseenheid hebt.
+- Leg uit waarom dat een acceptabele benadering is wanneer je veel deeltjes botsingen per tijdseenheid hebt.\
+##Omdat de kans dat dit in de werkelijkheid gebeurt is bijna nihiel meestal is er altijd wel een deeltje die ietsje sneller botst, bijna nooit gelijk.\
+en zeker omdat er in verhouding zoveel botsingen zijn dat deze beperking minimie impact heeft##
 - Voor wie een uitdaging wil: maak een grafiek met het aantal botsingen per tijdseenheid. Dit om bovenstaande benadering verder te verantwoorden.
 ```
 
+```python
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
+
+def handle_collisions(particles):
+    ignore_list = []
+    for i, p1 in enumerate(particles):
+        if p1 in ignore_list:
+            continue
+        for j, p2 in enumerate(particles):
+            if p1 is p2:
+                continue                
+            if collide_detection(particles[i], particles[j]):
+                particle_collision(particles[i], particles[j])
+                ignore_list.append(p2)
+
+
+def create_particles(particles):
+    ''' Leegmaken en opnieuw aanmaken van deeltjes '''
+    particles.clear
+    for i in range(3):
+        pos_x = [-1, 1/2, 1/2]
+        pos_y = [0, np.sqrt(3)*1/2, -np.sqrt(3)*1/2]
+        vx_1 = [V_0, -V_0/2, -V_0/2]
+        vy_1 = [0, -np.sqrt(3)*V_0/2, np.sqrt(3)*V_0/2]
+        vx = vx_1[i]
+        vy = vy_1[i]
+        pos = pos_x[i],pos_y[i]
+        particles.append(ParticleClass(m=1.0, v=[vx, vy], r=pos, R=RADIUS))
+
+
+particles = []
+create_particles(particles)
+
+fig, ax = plt.subplots()
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_xlim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_ylim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_aspect('equal')
+dot, = ax.plot([], [], 'ro', ms=13);
+
+def init():
+    dot.set_data([], [])
+    return dot,
+
+def update(frame):
+    take_time_step(particles)
+    dot.set_data([p.r[0] for p in particles], [p.r[1] for p in particles])
+    return dot,
+
+ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True, interval=50)
+plt.close()
+HTML(ani.to_jshtml())
+```
 
 ````{tip} Nog sneller
 Er is een manier om je script nog sneller te maken. 
@@ -481,6 +553,38 @@ In een latere opdracht moet je terug naar die cell en de juiste code toevoegen.
 
 ```python
 import numpy as np
+import time
+
+L = 2                # lengte van de vector
+repeats = 1_000_000  # aantal herhalingen
+
+rnd_vec1 = np.random.rand(L, repeats)
+ 
+# test numpy dot product
+t0 = time.perf_counter()
+for vec1 in rnd_vec1.T:
+    dot = np.dot(vec1, vec1)
+t1 = time.perf_counter()
+
+print(f"Numpy: Time taken for {repeats} dot products of length {L}: {t1 - t0:.4f} seconds")
+
+# test no numpy dot product 
+t0 = time.perf_counter()
+for vec1 in rnd_vec1.T:
+    dot = vec1[0] * vec1[0] + vec1[1] * vec1[1] # + vec1[2] * vec1[2] + vec1[3] * vec1[3] # don't forget to adjust!
+t1 = time.perf_counter()
+
+print(f"No Numpy: Time taken for {repeats} dot products of length {L}: {t1 - t0:.4f} seconds")
+
+# test fully vectorized 
+t0 = time.perf_counter()
+dot = np.sum(rnd_vec1[0] * rnd_vec1[0] + rnd_vec1[1] * rnd_vec1[1])
+t1 = time.perf_counter()
+print(f"Fully vectorized: Time taken for {repeats} dot products of length {L}: {t1 - t0:.4f} seconds")
+```
+
+```python
+import numpy as np
 import matplotlib.pyplot as plt
 ```
 
@@ -551,7 +655,7 @@ Voeg voor deze regel goede metadata toe.
 ```
 
 ```{solution} ex-brownian-1
-### YOUR CODE HERE ###
+In de laatste regel word er een zwaaar stiltaand deeltje toegevoegd in de oorsprong aan de 40 bewegende deeltjes, het zware deeltje is rood en de andere deeltjes zijn blauw. de verwachting is dat dit zware deeltje een brownianmotion zal doorlopen omdat hij relatief grotere massa heeft.
 ```
 
 
@@ -574,9 +678,10 @@ plt.ylim(-Box_length_0,Box_length_0)
 
 for particle, particle_object in enumerate(particles):
     plt.plot(particle_object.r[0],particle_object.r[1],color=particle_object.c,marker='.')
-    # plt.arrow(particle_object.r[0],particle_object.r[1], 
-    #           particle_object.v[0],particle_object.v[1], 
-    #           head_width=0.05, head_length=0.1, color='red')
+    plt.arrow(particle_object.r[0],particle_object.r[1], #
+               particle_object.v[0],particle_object.v[1], #
+    
+              head_width=0.05, head_length=0.1, color='g')#
 plt.show()
 
 ```
@@ -590,7 +695,12 @@ Hoe wordt er voor gezorgd dat de snelheid van elk deeltje gelijk is?
 ```
 
 ```{solution} ex-brownian-2
-### YOUR CODE HERE ###
+De rij met de comments ervoor geeft de snelheid weer met pijltjes in de eerste regel geef je x en y cordinaat dan geef je lengte in x en y richting.\
+en in de laatste regel geef je vorm aan pijltjes door de kleur en dikte aan te passen.\
+\
+Tijdens het vormen van de pijltjes hebben wij eerst een x snelheid gemaakt en\
+daarna de y snelheid zo aangepast dat de absolute snelheid altijd gelijkt is aan V_0.\
+Daarom zal de lengte van de pijltjes altijd gelijk zijn omdat die overeen komt met de absolute snelheid
 ```
 
 We gaan nu de functies van de simulatie weer aanroepen:
