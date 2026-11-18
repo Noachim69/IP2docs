@@ -863,6 +863,7 @@ ani.save("deeltjes.gif", writer="pillow", fps=20)
 ```{exercise} Brownian motion in beeld
 :label: ex-brownian-3
 - Draai de simulatie een keer en bestudeer de output.
+Het lichte deeltje(blauwe) heeft een veel groter afgelegde weg dan Het zware deeltje()
 - Voeg zelf een tweede tracking toe van een licht deeltje en verbeter de plot.
 - Wat zijn overeenkomsten en verschillen tussen de beweging van de twee deeltjes?
 - Wat valt je op als je de simulatie een aantal keer runt?
