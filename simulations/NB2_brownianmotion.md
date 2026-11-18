@@ -3,7 +3,6 @@
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-help
 ```
 
 ```{warning}
@@ -49,7 +48,11 @@ Als model gaan we uit van een deel van het volume van een fietsband die onder ee
 ```
 
 ```{solution} ex-recap-1
-### YOUR CODE HERE ###
+VP = N(getal van avagadro)KB(boltzman constante)T(kamertemperatuur)\
+V/N is gevraagd = 1.381e-23x293.15/10e5 = 4,0484015E-27\
+V/N = 3de machts wortel = 1.59987e-9 m3/mol/kg\
+dus V/N = ongeveer 1.6 nm3
+
 ```
 
 De simulatie die we gaan maken bevat maar twee dimensies. We kunnen het oppervlak per deeltje in deze simulatie daarom kiezen als het zojuist berekende $V_\text{molecuul}^{2/3}$.
@@ -69,7 +72,10 @@ Ook deze heb je hierna nodig.
 ```
 
 ```{solution} ex-recap-2
-### YOUR CODE HERE ###
+v = sqrt(2xKBxT/m)\
+m = Mlucht/N = 28.97/6.022e23 gram/mol/mol = 4.81e-26\
+v = sqrt(2x1.381e-23x293.15/4.81e-26) =ong 410 m/s
+
 ```
 
 ```{exercise} Radius
@@ -83,17 +89,19 @@ In de python cell hieronder staan enkele waarden gegeven. Het aantal deeltjes $N
 
 ```{exercise} DT
 :label: ex-recap-4
-Bekijk de waarde van `DT`. Hoe zorgt deze waaarde ervoor dat het onwaarschijnlijk is dat een botsing gemist wordt? Zet in het groene commentaar bij elke constante in welk eenheid deze wordt weergegeven.
+Bekijk de waarde van `DT`. Hoe zorgt deze waarde ervoor dat het onwaarschijnlijk is dat een botsing gemist wordt? Zet in het groene commentaar bij elke constante in welk eenheid deze wordt weergegeven.
 ```
 
 Onze simulatie modelleert dus een klein systeem zonder rekening te houden met de kracht tussen de luchtmoleculen. Je zult zien dat we toch al behoorlijk wat van de processor vragen om deze berekeningen te doen. Om een meer realistische modelsimulatie te maken is daarom een serieuze uitdaging, die veel wiskunde en programmeerervaring vraagt. Op dit ogenblik wordt dit bijvoorbeeld gevraagd bij een van de eerste opdrachten van het vak 'Computational Physics' van de master Applied Physics. 
 
 ```python tags=["NB2_init"] editable=true slideshow={"slide_type": ""}
-BOX_SIZE_0 = 10                # Hoogte en lengte startvolume
-N = 40                         # Aantal deeltjes
-V_0 = 1                        # Startsnelheid van deeltjes
-RADIUS = 0.3                   # Straal van moleculen
-DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen
+BOX_SIZE_0 = 10                # [m] Hoogte en lengte startvolume
+N = 40                         # []  Aantal deeltjes
+V_0 = 1                        # [m/s] Startsnelheid van deeltjes
+RADIUS = 0.3                   # [m] Straal van moleculen
+DT = 0.1 * RADIUS / V_0        # [s] Tijdstap om geen botsing te missen 
+#hij valt altijd binnen de 
+#radius omdat de stappen niet zo groot mogen worden dat hij de radius kan afleggen zonder dat dat geregistreerd word
 ```
 
 ### Particle class
@@ -184,8 +192,13 @@ Leg uit dat d.m.v. onderstaande code de deeltjes allemaal dezelfde snelheid hebb
 ```
 
 ```{solution} ex-recap-5
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+De x-snelheid word uniform gekozen tussen -V_0 en V_0.\
+De y-snelheid word zo gekozen dat vx en vy altijd samen V_0 zijn, dit word gedaan met pythagoras V_0^2 = vx^2 + vy^2, \
+hieruit volgt vy = +/- sqrt(V_0^2 - vx^2), daarnaast word er nog gekozen of de y snelheid positief of negatief word met een np.choice
+
+
+positie is uniforme verdeling tussen de linkerwant en de radius dus dat heel het deeltje in de box zit,\
+en de rechter want met de radius van de deeltjes dus aan het begin liggen alle deeltjes in box.
 ```
 
 ```python tags=["NB2_init"] editable=true slideshow={"slide_type": ""}
@@ -210,8 +223,13 @@ Leg uit hoe er in onderstaande code wordt voorkomen dat de botsing tussen twee d
 ```
 
 ```{solution} ex-recap-6
-Jouw antwoord hier...
-### YOUR CODE HERE ###
+Omdat de for loops alle mogelijke combinaties maar 1 keer doorlopen.\
+De i gaat het aantal deeltjes langs dus bv 0,1,2,3 en j gaat alle deeltjes langs van i + 1 tot het totaal aantal deeltjes.\
+Dus als 4 deeltjes zijn:\
+i = 0, j = 1,2,3\
+i = 1, j = 2,3\
+i = 2, j = 3\
+i = 3, j bestaat dan niet meer, en je hebt allee opties gehad
 ```
 
 ```python editable=true slideshow={"slide_type": ""} tags=["NB2_init"]
@@ -299,6 +317,7 @@ def update(frame):
     return dot,
 
 ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True, interval=50)
+plt.close()
 HTML(ani.to_jshtml())
 ```
 
@@ -316,14 +335,25 @@ Voeg aan de simulatie een regel toe die voor elke tijdstap bepaalt wat de totale
 
 particles = []
 energy_tot = []
+optelling_energie = 0
 create_particles(particles)
 for i in range(100):
     take_time_step(particles)
-    # voeg de som van de kinetische energie in deze stap toe aan energy_tot 
-    ### YOUR CODE HERE ###
-
+    energie_stap = 0
+    for j in range(len(particles)):
+        tijdelijkE = particles[j].kin_energy
+        energie_stap += tijdelijkE
+    optelling_energie += energie_stap
+    
+    energy_tot = np.append(energy_tot,optelling_energie)
+    
+t = np.linspace(0,99,100)
 # plot de figuur van de kinetische energie als functie van de tijd. 
-### YOUR CODE HERE ###
+plt.plot(t,energy_tot,'k.');
+```
+
+```python tags=["NB2_ex7"]
+print(np.linspace(0,99,100))
 ```
 
 ```{exercise} 
