@@ -366,6 +366,7 @@ In onderstaande code wordt daar een voorbeeld van gegeven.
 ```python tags=["NB2_ex7"]
 def handle_collisions(particles):
     ignore_list = []
+    counter = 0
     for i, p1 in enumerate(particles):
         if p1 in ignore_list:
             continue
@@ -375,6 +376,8 @@ def handle_collisions(particles):
             if collide_detection(particles[i], particles[j]):
                 particle_collision(particles[i], particles[j])
                 ignore_list.append(p2)
+                counter += 1
+    return counter
 ```
 
 <!-- #raw -->
@@ -395,12 +398,58 @@ Maak een script waarbij twee deeltjes met dezelfde (absolute) snelheid op een de
 # in ignore_list zit als dat zo is wordt die overgeslagen, in de tweede loop wordt gecontrolleerd of we niet een deeltje met zichzelf laten botsen,
 # als laatst wordt de collide_detection functie gebruikt en wordt deeltje p2 toegevoegd aan ignore_list
 
-p1 = ParticleClass(1, [1, 0], [0, 0], 1)
-p2 = ParticleClass(1, [0, 0], [3, 0], 1)
-p3 = ParticleClass(1, [-1, 0], [6, 0], 1)
-Deeltjes = [p1, p2, p3]
+def create_test_particles(particles):
+    particles.clear()
+    particles.append(ParticleClass(m=1.0, v=[1, 0], r=[-2, 0], R=RADIUS))
+    particles.append(ParticleClass(m=1.0, v=[0, 0], r=[0, 0], R=RADIUS))
+    particles.append(ParticleClass(m=1.0, v=[-1, 0], r=[2, 0], R=RADIUS))
+    
+create_test_particles(particles)
+handle_collisions(particles)
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
 
-handle_collisions(Deeltjes)
+fig, ax = plt.subplots()
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_xlim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_ylim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_aspect('equal')
+dot, = ax.plot([], [], 'ro', ms=13);
+
+def init():
+    dot.set_data([], [])
+    return dot,
+
+def update(frame):
+    take_time_step(particles)
+    dot.set_data([p.r[0] for p in particles], [p.r[1] for p in particles])
+    return dot,
+
+ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True, interval=50)
+plt.close()
+HTML(ani.to_jshtml())
+
+#Hier is te zien dat alleen de deeltjes met beginsnelheid eigenlijk met elkaar indirect botsen en het middelste deeltje stil blijft staan.
+
+#Dit is wat je ook verwacht en is daarom een acceptabele benadering, ook is de kans dat 3 deeltjes allemaal tegelijk op elkaar botsen vrij klein.
+#Als laatst is deze benadering veel simpler (en werkt goed) dan een code die 3 deeltjes met elkaar laat botsen en dan alles berekent waardoor de code
+#ook sneller runt.
+```
+
+```python tags=["NB2_ex7"]
+col = []
+create_test_particles(particles)
+handle_collisions(particles)
+for i in range(400):
+    for p in particles:
+        p.update_position()
+    col.append(handle_collisions(particles))
+
+plt.plot(np.arange(len(col)) * DT, col, 'r.')
+plt.xlabel("Tijd")
+plt.ylabel("Aantal botsingen")
+plt.show()
 ```
 
 ````{tip} Nog sneller
@@ -629,14 +678,15 @@ def particle_collision(p1: ParticleClass, p2: ParticleClass):
     p2.v += 2 * m1 / (m1 + m2) * dot_product / distance_squared * delta_r
 
 def handle_collisions(particles):
-    ### YOUR CODE HERE ###
+    counter = 0
     """ alle onderlinge botsingen afhandelen voor deeltjes in lijst """
     num_particles = len(particles)
     for i in range(num_particles):
         for j in range(i+1, num_particles):
             if collide_detection(particles[i], particles[j]):
                 particle_collision(particles[i], particles[j])
-                ### YOUR CODE HERE ###
+                counter += 1
+    return counter
 
 ```
 
@@ -647,12 +697,15 @@ In onderstaande code geven we de code voor de simulatie en volgen we de positie 
 track_x = []
 track_y = []
 
-### YOUR CODE HERE ###
+track_x2 = []
+track_y2 = []
 
-### YOUR CODE HERE ###
+tijd = []
+tot_bots = []
+botsingen = []
+tot = 0
 
 for i in range(400):
-    ### YOUR CODE HERE ###
     
     for p in particles:        
         p.update_position()    # Update positie        
@@ -660,16 +713,26 @@ for i in range(400):
         
     handle_collisions(particles)
 
-    ### YOUR CODE HERE ###
+    track_x2.append(particles[0].r[0])
+    track_y2.append(particles[0].r[1])
     
     track_x.append(particles[N-1].r[0])
     track_y.append(particles[N-1].r[1])
+
+    counter = handle_collisions(particles)
+    tijd.append(i * DT)
+    botsingen.append(counter)
+    tot += counter
+    tot_bots.append(tot)
     
 ### YOUR CODE HERE ###
 
 plt.figure()
-plt.plot(track_x,track_y,'r')
-### YOUR CODE HERE ###
+plt.plot(track_x,track_y,'r', label = 'zwaar deeltje')
+plt.plot(track_x2,track_y2,'b', label = 'licht deeltje')
+plt.xlabel("x-positie")
+plt.ylabel("y-positie")
+plt.legend()
 plt.show()
 ```
 
@@ -683,7 +746,7 @@ from matplotlib.animation import FFMpegWriter
 # ---- tracking arrays ----
 track_x, track_y = [], []          # zwaar deeltje (bijv. particles[N-1])
 track_x2, track_y2 = [], []        # tweede deeltje (bijv. particles[0])
-botsingen = []
+# botsingen = []
 
 # ---- figure setup ----
 fig, ax = plt.subplots()
@@ -713,7 +776,7 @@ def init():
     return dots, heavy_dot, light_dot, heavy_path, light_path
 
 def update(frame):
-    counter = 0
+    # counter = 0
 
     for p in particles:
         p.update_position()
@@ -721,7 +784,7 @@ def update(frame):
 
     handle_collisions(particles)
 
-    botsingen.append(counter)
+    # botsingen.append(counter)
 
     # ---- track punten ----
     track_x.append(particles[N-1].r[0])
@@ -768,7 +831,9 @@ ani.save("deeltjes.gif", writer="pillow", fps=20)
 ```
 
 ```{solution} ex-brownian-3
-### YOUR CODE HERE ###
+Beide deeltjes veranderen veel van richting, maar het lichter deeltje beweegt veel meer.
+Als we de simulatie een paar keer runnen zien we dat elke keer de deeltjes een andere baan volgen.
+Alsnog is het duidelijk dat het zwaarder deeltje veel minder beweegt in elke simulatie.
 ```
 
 
@@ -782,7 +847,17 @@ Plot hieronder het aantal botsingen als functie van de tijd.
 ```
 
 ```python
-### YOUR CODE HERE ###
+plt.plot(tijd, botsingen, 'r.')
+plt.xlabel('Tijd')
+plt.ylabel('Botsingen per DT')
+plt.show()
+```
+
+```python
+plt.plot(tijd, tot_bots)
+plt.xlabel('Tijd')
+plt.ylabel('Totaal aantal botsingen')
+plt.show()
 ```
 
 ```{warning} 🌶 Let op!
@@ -808,8 +883,53 @@ Maar voor een histogram hebben we veel deeltjes nodig.
 
 
 ```python tags=["NB2_brownian_distance_histogram"] editable=true slideshow={"slide_type": ""}
-### YOUR CODE HERE ###
+BOX_SIZE_0 = 30                # Hoogte en lengte startvolume [m]
+N = 40                         # Aantal deeltjes (ik doe geen 361 anders is de runtime te lang)
+V_0 = 1                        # Startsnelheid van deeltjes [m/s]
+RADIUS = 0.3                   # Straal van moleculen [m]
+DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen [s]
 
+def box_collision(particle: ParticleClass):
+    ''' botsing met wanden geeft periodieke randvoorwaarden '''
+    for i in range(1):
+        if particle.r[i] > 30 / 2:
+            particle.v[i] = -particle.v[i]
+        elif particle.r[i] < -30 / 2:
+            particle.v[i] = -particle.v[i]
+        if particle.r[i+1] > 30 / 2:
+            particle.v[i+1] = -particle.v[i+1]
+        elif particle.r[i+1] < -30 / 2:
+            particle.v[i+1] = -particle.v[i+1]
+def create_particles(particles):
+    ''' Leegmaken en opnieuw aanmaken van deeltjes '''
+    particles.clear()
+    for i in range(N-1):
+        vx = np.random.uniform(-V_0, V_0)
+        vy = np.random.choice([-1, 1]) * np.sqrt(V_0**2 - vx**2)        
+        pos = np.random.uniform(-30/2 + RADIUS, 30/2 - RADIUS, 2)
+        particles.append(ParticleClass(m=1.0, v=[vx, vy], r=pos, R=RADIUS, c='blue'))
+    particles.append(ParticleClass(m=20.0, v=[0, 0], r=[0, 0], R=RADIUS, c='red'))
+
+create_particles(particles)
+Afg = np.zeros(N) #afgelegde weg
+
+#Met behulp van gen AI gemaakt
+for i in range(400):
+    oude_posities = [p.r.copy() for p in particles]
+    for p in particles:
+        p.update_position()
+        p.boxcollision()
+    handle_collisions(particles)
+    
+    for j, p in enumerate(particles):
+        Afg[j] += np.linalg.norm(p.r - oude_posities[j]) #opgezocht
+
+plt.hist(Afg, bins=20,)
+plt.axvline(Afg[N-1], color = 'red', label='Zwaar deeltje')
+plt.xlabel('afgelegde weg')
+plt.ylabel('aantal deeltjes')
+plt.legend()
+plt.show()
 ```
 
 En nu we toch bezig zijn met twee verschillende deeltjes.... 
@@ -823,8 +943,100 @@ We kunnen twee "groepen" van deeltjes aanmaken, elk  met een andere massa. Als w
 ```
 
 ```python
-### YOUR CODE HERE ###
+BOX_SIZE_0 = 30               # Hoogte en lengte startvolume [m]
+N = 80                         # Aantal deeltjes
+V_0 = 1                        # Startsnelheid van deeltjes [m/s]
+RADIUS = 0.3                   # Straal van moleculen [m]
+DT = 0.1 * RADIUS / V_0        # Tijdstap om geen botsing te missen [s]
 
+def box_collision(particle: ParticleClass):
+    ''' botsing met wanden geeft periodieke randvoorwaarden '''
+    for i in range(1):
+        if particle.r[i] > 30 / 2:
+            particle.v[i] = -particle.v[i]
+        elif particle.r[i] < -30 / 2:
+            particle.v[i] = -particle.v[i]
+        if particle.r[i+1] > 30:
+            particle.v[i+1] = -particle.v[i+1]
+        elif particle.r[i+1] < -30:
+            particle.v[i+1] = -particle.v[i+1]
+def create_particles(particles):
+    ''' Leegmaken en opnieuw aanmaken van deeltjes '''
+    particles.clear()
+    for i in range(N-1):
+        vx = np.random.uniform(-V_0, V_0)
+        vy = np.random.choice([-1, 1]) * np.sqrt(V_0**2 - vx**2)        
+        posx = np.random.uniform(-30/2 + RADIUS, 30/2 - RADIUS)
+        posy = np.random.uniform(-30 + RADIUS, 30 - RADIUS)
+        particles.append(ParticleClass(m=1.0, v=[vx, vy], r=[posx, posy], R=RADIUS, c='blue'))
+    particles.append(ParticleClass(m=20.0, v=[0, 0], r=[0, 0], R=RADIUS, c='red'))
+
+g = -9.81
+create_particles(particles)
+Afg = np.zeros(len(particles)) #afgelegde weg
+for i in range(400):
+    oude_posities = [p.r.copy() for p in particles]
+    for p in particles:
+        p.v[1] += g * DT
+        p.update_position()
+        box_collision(p)
+
+    handle_collisions(particles)
+
+    for j, p in enumerate(particles):
+        Afg[j] += np.linalg.norm(p.r - oude_posities[j]) #opgezocht
+
+plt.hist(Afg, bins=20,)
+plt.axvline(Afg[N-1], color = 'red', label='Zwaar deeltje')
+plt.xlabel('afgelegde weg')
+plt.ylabel('aantal deeltjes')
+plt.legend()
+plt.show()
+
+```
+
+```python
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
+
+create_particles(particles)
+
+fig, ax = plt.subplots()
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_xlim(-BOX_SIZE_0/2, BOX_SIZE_0/2)
+ax.set_ylim(-BOX_SIZE_0, BOX_SIZE_0)
+ax.set_aspect('equal')
+dot, = ax.plot([], [], 'ro', ms=4);
+heavy_dot, = ax.plot([], [], 'bo', ms=4)
+
+def init():
+    dot.set_data([], [])
+    heavy_dot.set_data([], [])
+    return dot, heavy_dot
+
+def take_time_step(particles):
+    for p in particles:
+        p.v[1] += g * DT
+        p.update_position()
+        
+    handle_collisions(particles)
+    handle_walls(particles)  
+
+def update(frame):
+    take_time_step(particles)
+    dot.set_data([p.r[0] for p in particles], [p.r[1] for p in particles])
+    heavy_dot.set_data([particles[-1].r[0]], [particles[-1].r[1]])
+    return dot, heavy_dot
+
+ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True, interval=50)
+plt.close()
+HTML(ani.to_jshtml())
+```
+
+```python
+print(len(particles))
+print(len(Afg))#af
 ```
 
 ```python
