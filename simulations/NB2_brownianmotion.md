@@ -730,6 +730,7 @@ def particle_collision(p1: ParticleClass, p2: ParticleClass):
     p2.v += 2 * m1 / (m1 + m2) * dot_product / distance_squared * delta_r
 
 def handle_collisions(particles):
+    counter = 0
     ### YOUR CODE HERE ###
     """ alle onderlinge botsingen afhandelen voor deeltjes in lijst """
     num_particles = len(particles)
@@ -737,7 +738,10 @@ def handle_collisions(particles):
         for j in range(i+1, num_particles):
             if collide_detection(particles[i], particles[j]):
                 particle_collision(particles[i], particles[j])
+                counter += 1
                 ### YOUR CODE HERE ###
+ 
+    return counter
 
 ```
 
@@ -783,16 +787,19 @@ from matplotlib.animation import FFMpegWriter
 
 # ---- tracking arrays ----
 track_x, track_y = [], []          # zwaar deeltje (bijv. particles[N-1])
-track_x2, track_y2 = [], []        # tweede deeltje (bijv. particles[0])
+track_x2, track_y2 = [], [] 
+track_x3, track_y3 = [], [] # tweede deeltje (bijv. particles[0])####
 botsingen = []
 
 # ---- figure setup ----
 fig, ax = plt.subplots()
 ax.set_xlabel('x')
+ax.set_title('Brownianmotion')
 ax.set_ylabel('y')
 ax.set_xlim(-Box_size_0/2, Box_size_0/2)
 ax.set_ylim(-Box_size_0/2, Box_size_0/2)
 ax.set_aspect('equal')
+
 
 # alle deeltjes als rode punten
 dots, = ax.plot([], [], 'ro', ms=18)
@@ -800,29 +807,39 @@ dots, = ax.plot([], [], 'ro', ms=18)
 # de twee deeltjes extra benadrukken
 heavy_dot, = ax.plot([], [], 'ko', ms=20)   # zwaar
 light_dot, = ax.plot([], [], 'bo', ms=18)   # tweede (blauw)
+light_dot2, = ax.plot([], [], 'go', ms=18)   # tweede (blauw)
 
 # ---- NIEUW: lijnen voor de paden ----
-heavy_path, = ax.plot([], [], 'k-', lw=1, alpha=0.8)
-light_path, = ax.plot([], [], 'b-', lw=1, alpha=0.8)
+heavy_path, = ax.plot([], [], 'k-', lw=3, alpha=0.8, label ='zware deeltje')
+light_path, = ax.plot([], [], 'b-', lw=1, alpha=0.8, label ='lichte deeltje')
+light_path2, = ax.plot([], [], 'g-', lw=1, alpha=0.8, label ='lichte deeltje 2')
 
 def init():
     dots.set_data([], [])
     heavy_dot.set_data([], [])
     light_dot.set_data([], [])
+    light_dot2.set_data([], [])
     heavy_path.set_data([], [])
     light_path.set_data([], [])
-    return dots, heavy_dot, light_dot, heavy_path, light_path
+    light_path2.set_data([], [])
+    return dots, heavy_dot, light_dot, light_dot2 , heavy_path, light_path, light_path2
 
+
+botsingen = []
+totale_botsingen = 0
 def update(frame):
-    counter = 0
-
+    global totale_botsingen
+    
+    
     for p in particles:
         p.update_position()
         p.boxcollision()
 
-    handle_collisions(particles)
+    botsing = handle_collisions(particles)
+    
+    totale_botsingen += botsing
 
-    botsingen.append(counter)
+    botsingen.append(totale_botsingen)
 
     # ---- track punten ----
     track_x.append(particles[N-1].r[0])
@@ -830,6 +847,9 @@ def update(frame):
 
     track_x2.append(particles[0].r[0])
     track_y2.append(particles[0].r[1])
+
+    track_x3.append(particles[1].r[0])
+    track_y3.append(particles[1].r[1])
 
     # ---- update alle deeltjes ----
     xs = [p.r[0] for p in particles]
@@ -839,13 +859,17 @@ def update(frame):
     # ---- update de 2 highlights ----
     heavy_dot.set_data([track_x[-1]], [track_y[-1]])
     light_dot.set_data([track_x2[-1]], [track_y2[-1]])
+    light_dot2.set_data([track_x3[-1]], [track_y3[-1]])
 
     # ---- NIEUW: update de paden ----
     heavy_path.set_data(track_x, track_y)
     light_path.set_data(track_x2, track_y2)
+    light_path2.set_data(track_x3, track_y3)
 
-    return dots, heavy_dot, light_dot, heavy_path, light_path
+    
 
+    return dots, heavy_dot, light_dot, light_dot2 , heavy_path, light_path, light_path2
+ax.legend()
 ani = FuncAnimation(fig, update, frames=400, init_func=init, blit=True, interval=50)
 HTML(ani.to_jshtml())
 
@@ -863,14 +887,17 @@ ani.save("deeltjes.gif", writer="pillow", fps=20)
 ```{exercise} Brownian motion in beeld
 :label: ex-brownian-3
 - Draai de simulatie een keer en bestudeer de output.
-Het lichte deeltje(blauwe) heeft een veel groter afgelegde weg dan Het zware deeltje()
 - Voeg zelf een tweede tracking toe van een licht deeltje en verbeter de plot.
 - Wat zijn overeenkomsten en verschillen tussen de beweging van de twee deeltjes?
 - Wat valt je op als je de simulatie een aantal keer runt?
 ```
 
 ```{solution} ex-brownian-3
-### YOUR CODE HERE ###
+- 1) Het lichte deeltje(blauwe) heeft een veel groter afgelegde weg dan Het zware deeltje(zwarte).
+ook zie je dat de richting van de blauwe bal vaker en meer veranderd in verhouding met die van de zwarte.
+- 3) beide deeltjes bewegen onregelmatig, verschillen zware deeltje veranderd gemiddeld minder sterk na een botsing. Het lichte deeltje heeft grotere snelheid.
+- 4) De afgelegde weg is iedere keer heel anders er is werkelijk geen pijl op te trekken. Er valt niks te voorspellen over de route van de deeltjes naast dat hij volledig random zal zijn.
+
 ```
 
 
@@ -884,7 +911,11 @@ Plot hieronder het aantal botsingen als functie van de tijd.
 ```
 
 ```python
-### YOUR CODE HERE ###
+
+plt.xlabel("frames")
+plt.ylabel(" botsingen")
+plt.title("Aantal botsingen als functie van de tijd")
+plt.plot(botsingen,'k-');
 ```
 
 ```{warning} 🌶 Let op!
