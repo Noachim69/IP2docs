@@ -1,7 +1,7 @@
 # NB 3: Druk, temperatuur en energie
 
 ```{warning}
-Vergeet niet naar main te gaan, te pullen, een nieuwe branch te maken vanaf main en daarin verder te werken!
+Vergeet niet naar main te gaan, te pullen, een nieuwe branch te maken vanaf main en daarin verder te werken! #check noah
 ```
 
 ## Doelen
