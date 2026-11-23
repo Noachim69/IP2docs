@@ -236,14 +236,14 @@ Schrijf een functie die de temperatuur van het gas in onze simulatie bepaalt:
 ```python tags=["NB3_tempfun"]
 def temperature(particles) -> float:
     temp = 0.0 
-    k = 1.380649*10**(-23)
+    k = 1.380649e-23
     f = 2
     som_Ke = 0
     for i in range(len(particles)):
         v2 = particles[i].v[0]**2 + particles[i].v[1]**2
-        som_Ke += 0.5*(particles[i].m*10**(-23))*v2 
+        som_Ke += (particles[i].m)*v2 
         #de massa klopt niet die is nu rond de 1kg maar eigleijk moet hij 10**-26kg  zijn.
-    temp = 2*som_Ke/(k*f) # [J]/[J*K**-1] = [k]
+    temp = som_Ke/(len(particles) * k * f) # [J]/[J*K**-1] = [k]
     return temp
 ```
 
@@ -279,6 +279,7 @@ plt.figure()
 plt.title('temperatuur van massa 1 kg')
 plt.xlabel('Time $(Frames)$')
 plt.ylabel('Temperature $(K)$')
+#plt.ylim(14.4, 14.6)
 # plotten van tijd tegen temperatuur
 #plt.plot(temperatuur,'k.') #Dit is cumalitief
 plt.plot(temp_per_f)
@@ -486,7 +487,7 @@ times = np.linspace(1, N_steps, N_steps)
 create_particles(particles)
 
 ### YOUR CODE HERE ###
-for i in range(100):
+for i in range(N_steps):
     take_time_step(particles)
 
     #handle_walls(particles)
@@ -510,7 +511,7 @@ We kunnen de gevonden druk nu wel uitdrukken in SI-eenheden met behulp van de vo
 ```
 
 ```{solution} ex-druktemp-7
-### YOUR CODE HERE ###
+Het zijn vele male te weinig deeltjes, nu zijn er 400 deeltjes op 50 bij 50 m maar werkleijk zijn er veel meer deeltje meer in de tranr van 10e26 deetjes
 ```
 
 
@@ -522,7 +523,8 @@ Leg op basis van de vormen die je ziet en de bijbehorende wiskunde uit dat dit e
 ```
 
 ```{solution} ex-druktemp-8
-### YOUR CODE HERE ###
+De a^k vorm de expotentieel verval wat zorgt dat de grafiek meer uitvlaking. hierdoor is een beter gemiddelde af te lezen. en het voorgezet gemiddelde betekent dat alleen bij het verval dus als hij naar beneden gaat dat daar continu het gemiddelde van pakt ipv direct weer nul word. hierdoor krijg je dus die uitvlakking.
+
 ```
 
 
@@ -553,6 +555,8 @@ Controleer of je uitkomst overeenkomt met de theorie en verifieer hiermee de cod
 
 ```python
 ### YOUR CODE HERE ###
+p = particles.m*N*v2/(2*A)
+print(p)
 ```
 
 In [de formule voor de tweedimensionale druk](2d_pressure) kan je de structuur van de ideale gaswet herkennen. 
