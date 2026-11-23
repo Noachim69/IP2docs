@@ -555,6 +555,7 @@ Controleer of je uitkomst overeenkomt met de theorie en verifieer hiermee de cod
 
 ```python
 ### YOUR CODE HERE ###
+for i in e
 p = particles.m*N*v2/(2*A)
 print(p)
 ```
