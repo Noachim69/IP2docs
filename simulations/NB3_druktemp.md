@@ -127,6 +127,19 @@ def handle_collisions(particles):
         for j in range(i+1, num_particles):
             if collide_detection(particles[i], particles[j]):
                 particle_collision(particles[i], particles[j])
+# def handle_collisions(particles):
+#     ignore_list = []
+#     for i, p1 in enumerate(particles):
+#         if p1 in ignore_list:
+#             continue
+#         for j, p2 in enumerate(particles):
+#             if p1 is p2:
+#                 continue                
+#             if collide_detection(particles[i], particles[j]):
+#                 particle_collision(particles[i], particles[j])
+#                 ignore_list.append(p2)
+
+
 
 def handle_walls(particles):
     """ botsing met wanden controleren voor alle deeltjes in lijst """
@@ -223,7 +236,12 @@ Schrijf een functie die de temperatuur van het gas in onze simulatie bepaalt:
 ```python tags=["NB3_tempfun"]
 def temperature(particles) -> float:
     temp = 0.0 
-    ### YOUR CODE HERE ###
+    k = (1.380649*10**-23)
+    f = 2
+    som_Ke = 0
+    for i in range(len(particles)):
+        som_Ke += particles[i].m*(particles[i].v**2)
+    temp = som_Ke/(k*f) 
     return temp
 ```
 
@@ -243,16 +261,22 @@ temperatures = np.zeros(100, dtype=float)
 times = np.linspace(1, 100, 100)
 
 create_particles(particles)
+temperatuur = 0
+temp_som_frames = 0
 for i in range(100):
     take_time_step(particles)
     # vastleggen van temperatuur per tijdstap
+    temp_f = temperature(particles)
+    temp_som_frames += temp_f
+    temperatuur = np.append(temperatuur, temp_som_frames)
+    
     ### YOUR CODE HERE ###
 
 plt.figure()
 plt.xlabel('Time')
 plt.ylabel('Temperature')
 # plotten van tijd tegen temperatuur
-### YOUR CODE HERE ###
+plt.plot(temperatuur,'k.')
 plt.show()
 ```
 
