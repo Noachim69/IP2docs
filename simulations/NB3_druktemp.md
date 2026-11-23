@@ -236,12 +236,14 @@ Schrijf een functie die de temperatuur van het gas in onze simulatie bepaalt:
 ```python tags=["NB3_tempfun"]
 def temperature(particles) -> float:
     temp = 0.0 
-    k = (1.380649*10**-23)
+    k = 1.380649*10**(-23)
     f = 2
     som_Ke = 0
     for i in range(len(particles)):
-        som_Ke += particles[i].m*(particles[i].v**2)
-    temp = som_Ke/(k*f) 
+        v2 = particles[i].v[0]**2 + particles[i].v[1]**2
+        som_Ke += 0.5*(particles[i].m*10**(-23))*v2 
+        #de massa klopt niet die is nu rond de 1kg maar eigleijk moet hij 10**-26kg  zijn.
+    temp = 2*som_Ke/(k*f) # [J]/[J*K**-1] = [k]
     return temp
 ```
 
@@ -263,20 +265,23 @@ times = np.linspace(1, 100, 100)
 create_particles(particles)
 temperatuur = 0
 temp_som_frames = 0
+temp_per_f = []
 for i in range(100):
     take_time_step(particles)
     # vastleggen van temperatuur per tijdstap
     temp_f = temperature(particles)
+    temp_per_f = np.append(temp_per_f, temp_f)
     temp_som_frames += temp_f
-    temperatuur = np.append(temperatuur, temp_som_frames)
+    temperatuur = np.append(temperatuur, temp_som_frames) #moet hij cmalitief of moet hij gewoon continu blijven
     
-    ### YOUR CODE HERE ###
 
 plt.figure()
-plt.xlabel('Time')
-plt.ylabel('Temperature')
+plt.title('temperatuur van massa 1 kg')
+plt.xlabel('Time $(Frames)$')
+plt.ylabel('Temperature $(K)$')
 # plotten van tijd tegen temperatuur
-plt.plot(temperatuur,'k.')
+#plt.plot(temperatuur,'k.') #Dit is cumalitief
+plt.plot(temp_per_f)
 plt.show()
 ```
 
@@ -355,6 +360,7 @@ def handle_walls(particles):
 ```
 
 <!-- #region tags=[] -->
+######
 ```{exercise}
 :label: ex-druktemp-4
 Maak nu een simulatie waarin je de druk als functie van de tijd toont gedurende 100 tijdstappen.
@@ -363,7 +369,6 @@ Je zal zien dat deze grafiek niet een mooie vlakke vorm zal hebben.
 Wat zou je als verklaring hiervoor geven?
 ```
 
-
 <!-- #endregion -->
 
 ```python tags=["NB3_plot_pres"]
@@ -371,7 +376,16 @@ particles = []
 pressures = np.zeros(100, dtype=float)
 times = np.linspace(1, 100, 100)
 
-### YOUR CODE HERE ###
+create_particles(particles)
+#top_down_collision(particles)
+#left_right_collision(particles)
+
+for i in range(100):
+    take_time_step(particles)
+
+    #handle_walls(particles)
+    pressures[i] = pressure
+
 
 plt.figure()
 plt.xlabel('Time [step]')
@@ -401,7 +415,29 @@ Zet je initiële waarden weer terug.
 
 ```python tags=[]
 ### YOUR CODE HERE ###
+particles = []
+pressures = np.zeros(100, dtype=float)
+times = np.linspace(1, 100, 100)
+BOX_SIZE_0 = 50
+N = 400
+create_particles(particles)
+#top_down_collision(particles)
+#left_right_collision(particles)
 
+for i in range(100):
+    take_time_step(particles)
+
+    #handle_walls(particles)
+    pressures[i] = pressure
+
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
 ```
 
 Een goedkoper alternatief bestaat uit het middelen van de druk over de tijd.
@@ -450,7 +486,20 @@ times = np.linspace(1, N_steps, N_steps)
 create_particles(particles)
 
 ### YOUR CODE HERE ###
+for i in range(100):
+    take_time_step(particles)
 
+    #handle_walls(particles)
+    pressures[i] = pressure
+
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
 ```
 
 Met de middeling kun je beter zien wat de gemiddelde waarde voor de druk in dit systeem is. Als dit voor jouw simulatie lastig is kan je de factor `alpha` aanpassen in de functie 'handle_walls`, zodat je over een langere periode het gemiddelde neemt. Hou daarbij wel rekening met de eis in [bovenstaande formule](int_norm)
