@@ -555,8 +555,12 @@ Controleer of je uitkomst overeenkomt met de theorie en verifieer hiermee de cod
 
 ```python
 ### YOUR CODE HERE ###
-for i in e
-p = particles.m*N*v2/(2*A)
+m = 0
+for i in range(len(particles)):
+    N = len(particles)
+    A = BOX_SIZE_0**2
+    v2 = particles[i].v[0]**2+particles[i].v[1]**2
+    p = particles[i].m*N*(v2/N)/(2*A)
 print(p)
 ```
 
