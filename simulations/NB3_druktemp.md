@@ -554,13 +554,17 @@ Controleer of je uitkomst overeenkomt met de theorie en verifieer hiermee de cod
 ```
 
 ```python
-### YOUR CODE HERE ###
-m = 0
+
+N = len(particles)
+A = BOX_SIZE_0**2
+v_tot = 0
+m_tot = 0
 for i in range(len(particles)):
-    N = len(particles)
-    A = BOX_SIZE_0**2
-    v2 = particles[i].v[0]**2+particles[i].v[1]**2
-    p = particles[i].m*N*(v2/N)/(2*A)
+    v2 = (particles[i].v[0]**2+particles[i].v[1]**2)
+    v_tot += v2
+    m = particles[i].m
+    m_tot += m
+p = m_tot*(v_tot/N)/(2*A)
 print(p)
 ```
 
@@ -574,8 +578,12 @@ Herleid dezelfde formule af voor het driedimensionale geval. Laat zien welke rel
 
 
 ```{solution} ex-druktemp9b
-Geef hier de relatie tussen de constanten...
-### YOUR CODE HERE ###
+PV = NRT
+pv = RT/M
+nu alles in 3D dus lengte wordt opp en opp word volume\
+de formule word mN<v^2>/3v =<p>\
+je moet nu delen door drie omdat er 3 dimensies zijn en opp word volume omdat je een dimensie omhoog gaat 
+
 ```
 
 

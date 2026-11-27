@@ -165,7 +165,22 @@ Maak een alternatieve vorm van de functie `create_particles` die alle deeltjes e
 def create_uniform_particles(particles):
     """ Leegmaken en opnieuw aanmaken van deeltjes met uniforme snelheid in lijst """
     particles.clear()
-    ### YOUR CODE HERE ###
+    for i in range(N):
+        vx = 0
+        vy = v_0
+        pos = np.random.uniform(-BOX_SIZE_0/2 + RADIUS, BOX_SIZE_0/2 - RADIUS, 2)
+        particles.append(ParticleClass(m=1.0, v=[vx, vy], r=pos, R=RADIUS))
+    
+
+
+    # def create_particles(particles):
+    # """ Leegmaken en opnieuw aanmaken van deeltjes  in lijst """
+    # particles.clear()
+    # for i in range(N):
+    #     vx = np.random.uniform(-V_0, V_0)
+    #     vy = np.random.choice([-1, 1]) * np.sqrt(V_0**2 - vx**2)        
+    #     pos = np.random.uniform(-BOX_SIZE_0/2 + RADIUS, BOX_SIZE_0/2 - RADIUS, 2)
+    #     particles.append(ParticleClass(m=1.0, v=[vx, vy], r=pos, R=RADIUS))
 ```
 
 
