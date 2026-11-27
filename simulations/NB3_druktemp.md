@@ -223,7 +223,11 @@ Schrijf een functie die de temperatuur van het gas in onze simulatie bepaalt:
 ```python tags=["NB3_tempfun"]
 def temperature(particles) -> float:
     temp = 0.0 
-    ### YOUR CODE HERE ###
+    k = 1.380649*10**-23
+    f = 2 #?
+    for i in particles:
+        temp += (i.m*np.dot(i.v, i.v))/(k*f)
+    temp / len(particles)
     return temp
 ```
 
@@ -246,13 +250,14 @@ create_particles(particles)
 for i in range(100):
     take_time_step(particles)
     # vastleggen van temperatuur per tijdstap
-    ### YOUR CODE HERE ###
+    temperature(particles)
+    temperatures[i] = temperature(particles)
 
 plt.figure()
 plt.xlabel('Time')
 plt.ylabel('Temperature')
 # plotten van tijd tegen temperatuur
-### YOUR CODE HERE ###
+plt.plot(times,temperatures)
 plt.show()
 ```
 
@@ -348,6 +353,11 @@ pressures = np.zeros(100, dtype=float)
 times = np.linspace(1, 100, 100)
 
 ### YOUR CODE HERE ###
+create_particles(particles)
+
+for i in range(100):
+    take_time_step(particles)
+    pressures[i] = pressure
 
 plt.figure()
 plt.xlabel('Time [step]')
@@ -377,7 +387,30 @@ Zet je initiële waarden weer terug.
 
 ```python tags=[]
 ### YOUR CODE HERE ###
+#Als je de volume niet aanpast gaat de dichtheid van de deeltjes omhoog
+#waardoor er veel vaker botsingen plaatsvinden en de druk op de wanden erg stijgt
+#dit kan als gevolg hebben dat de simulatie onrealistisch is
+N = 400
+BOX_SIZE_0 = 30
+particles = []
+pressures = np.zeros(100, dtype=float)
+times = np.linspace(1, 100, 100)
+create_particles(particles)
 
+for i in range(100):
+    take_time_step(particles)
+    pressures[i] = pressure
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
+
+BOX_SIZE_0 = 10
+N = 40                         
 ```
 
 Een goedkoper alternatief bestaat uit het middelen van de druk over de tijd.
@@ -425,7 +458,17 @@ times = np.linspace(1, N_steps, N_steps)
 
 create_particles(particles)
 
-### YOUR CODE HERE ###
+for i in range(N_steps):
+    take_time_step(particles)
+    pressures[i] = pressure
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
 
 ```
 
@@ -437,7 +480,7 @@ We kunnen de gevonden druk nu wel uitdrukken in SI-eenheden met behulp van de vo
 ```
 
 ```{solution} ex-druktemp-7
-### YOUR CODE HERE ###
+Alle gebruikte parameters kloppen niet, een massa van 1 kg voor een luchtdeeltje, 40 totale deeltjes en de gekozen volume hebben nog niks te maken met de parameters van lucht in een fietsband. Daardoor komt onze berekening toch niet mooi uit.
 ```
 
 
@@ -449,7 +492,9 @@ Leg op basis van de vormen die je ziet en de bijbehorende wiskunde uit dat dit e
 ```
 
 ```{solution} ex-druktemp-8
-### YOUR CODE HERE ###
+Gemiddelde: De formule neemt zowel de huidige druk als die van de stap ervoor met een gewichtfactor a.\
+Voortschrijdend: Bij elke tijdstap wordt de gemiddelde opnieuw berekend.\
+Exponentieel: In de formule wordt de invloed van eerdere metingen steeds vermenigvuldigd met een factor 1 - a waardoor hun invloed exponentieel afneemt
 ```
 
 
