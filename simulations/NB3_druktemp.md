@@ -524,7 +524,34 @@ Controleer of je uitkomst overeenkomt met de theorie en verifieer hiermee de cod
 ```
 
 ```python
-### YOUR CODE HERE ###
+def P_theorie(particles):
+    P = 0
+    for p in particles:
+        P += (p.m*np.dot(p.v, p.v))/(2*BOX_SIZE_0**2)
+    return P
+
+particles = []
+N_steps = 500 
+pressures = np.zeros(N_steps, dtype=float)
+
+times = np.linspace(1, N_steps, N_steps)
+
+create_particles(particles)
+
+for i in range(N_steps):
+    take_time_step(particles)
+    pressures[i] = pressure
+
+plt.figure()
+plt.xlabel('Time [step]')
+plt.ylabel('Pressure [a.u.]')
+
+plt.plot(times, pressures, '-r')
+
+plt.show()
+
+print("theoretische druk:", P_theorie(particles))
+print("gemiddelde simulatie:", np.mean(pressures))
 ```
 
 In [de formule voor de tweedimensionale druk](2d_pressure) kan je de structuur van de ideale gaswet herkennen. 
@@ -537,8 +564,15 @@ Herleid dezelfde formule af voor het driedimensionale geval. Laat zien welke rel
 
 
 ```{solution} ex-druktemp9b
-Geef hier de relatie tussen de constanten...
-### YOUR CODE HERE ###
+Omdat we nu 3 snelheden optellen geldt:\
+P = mNv^2/3V\
+Hieruit volgt:\
+PV = mNv^2/3\
+vergelegen met de ideale gaswet:\
+PV = nRT\ 
+We weten dat N = n*N_a (N_a is de constante van Avogadro) en dat k_B = R/N_a\
+Oplossen voor k_B geeft:\
+K_B = m * v^2/3T
 ```
 
 
@@ -565,12 +599,57 @@ Je ziet dat de druk een statistisch bepaalde grootheid is die met de tijd variee
 
 ```python
 ### YOUR CODE HERE ###
+N = 40
+BOX_SIZE_0 = 10*np.sqrt(N)/np.sqrt(40)
+particles = []
+N_steps = 1000 
+pressures = np.zeros(N_steps, dtype=float)
+
+times = np.linspace(1, N_steps, N_steps)
+
+create_particles(particles)
+
+for i in range(N_steps):
+    take_time_step(particles)
+    pressures[i] = pressure
+plt.figure()
+plt.hist(pressures, bins=20)
+plt.xlabel("Pressure [a.u.]")
+plt.ylabel("Aantal metingen")
+plt.show()
+#Breedte gedefinieerd als standaardafwijking
+print("breedte van de drukverdeling:", np.std(pressures))
 ```
 
 ```python
+### YOUR CODE HERE ###
+N = 80
+BOX_SIZE_0 = 10*np.sqrt(N)/np.sqrt(40)
+particles = []
+N_steps = 1000 
+pressures = np.zeros(N_steps, dtype=float)
 
+times = np.linspace(1, N_steps, N_steps)
 
+create_particles(particles)
 
+for i in range(N_steps):
+    take_time_step(particles)
+    pressures[i] = pressure
+plt.figure()
+plt.hist(pressures, bins=20)
+plt.xlabel("Pressure [a.u.]")
+plt.ylabel("Aantal metingen")
+plt.show()
+#Breedte gedefinieerd als standaardafwijking
+print("breedte van de drukverdeling:", np.std(pressures))
+```
+
+```python
+N_groot = 10**23
+#Wij hebben opgezocht dat de breedte (Standaardafwijking) afneemt met 1/sqrt(N), hieruit volgt: Breedte_nieuw = Breedte*sqrt(N/N_nieuw)
+breedte_groot = np.std(pressures) * np.sqrt(N / N_groot)
+print("breedte bij 10^23 deeltjes:", breedte_groot)
 ```
 
 ```python
